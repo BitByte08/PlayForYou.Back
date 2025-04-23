@@ -1,4 +1,5 @@
 import express from 'express';
+import searchRouter from './routers/search';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
@@ -21,7 +22,7 @@ const io = new Server(httpServer, {
 const roomQueues: Record<string, string[]> = {};
 
 app.use(cors());
-
+app.use('/search', searchRouter);
 io.on('connection', (socket) => {
     console.log(`✅ ${socket.id} connected`);
 
@@ -35,7 +36,6 @@ io.on('connection', (socket) => {
         }
         io.emit('room_list', Object.keys(roomQueues)); // 전체에 새 목록 전송
     });
-
     socket.on('join_room', (roomId: string) => {
         if(roomQueues[roomId]) {
             socket.join(roomId);
@@ -50,7 +50,6 @@ io.on('connection', (socket) => {
         if (!roomQueues[info.roomId]) {
             roomQueues[info.roomId] = [];
         }
-
         // 큐에 추가
         roomQueues[info.roomId].push(info.videoUrl);
         io.to(info.roomId).emit('video_added', info.videoUrl);
