@@ -8,7 +8,11 @@ import { v4 as uuidv4 } from 'uuid';
 
 type InfoType = {
     roomId: string,
-    videoUrl: string
+    musicInfo: musicType
+}
+type musicType = {
+    name: string,
+    url: string
 }
 const app = express();
 const httpServer = createServer(app);
@@ -19,7 +23,7 @@ const io = new Server(httpServer, {
     }
 });
 // 서버 전역에 방 별 큐 저장
-const roomQueues: Record<string, string[]> = {};
+const roomQueues: Record<string, musicType[]> = {};
 
 app.use(cors());
 app.use('/search', searchRouter);
@@ -51,8 +55,8 @@ io.on('connection', (socket) => {
             roomQueues[info.roomId] = [];
         }
         // 큐에 추가
-        roomQueues[info.roomId].push(info.videoUrl);
-        io.to(info.roomId).emit('video_added', info.videoUrl);
+        roomQueues[info.roomId].push(info.musicInfo);
+        io.to(info.roomId).emit('video_added', info.musicInfo);
     });
     socket.on('disconnect', () => {
         console.log(`❌ ${socket.id} disconnected`);
