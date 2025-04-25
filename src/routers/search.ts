@@ -1,30 +1,40 @@
-// routes/search.ts
-import express, { Request, Response, Application } from 'express';
+// backend/search.ts (Express)
+import express from 'express';
 import axios from 'axios';
-
+import * as https from "node:https";
+require('dotenv').config();
 const router = express.Router();
+const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+const agent = new https.Agent({
+    rejectUnauthorized: false, // 인증서 검증 무시
+});
 
-router.get('/', async (req: Request , res: Response ): Promise<any> => {
+router.get('/search', async (req, res) => {
     const query = req.query.q as string;
-
-    if (!query) return res.status(400).json({ error: '검색어가 필요합니다' });
-
+    if (!query) {
+        res.status(400).json({ error: '검색어가 필요합니다' });
+    }
     try {
-        const response = await axios.get(
-            'https://www.googleapis.com/youtube/v3/search',
-            {
-                params: {
-                    part: 'snippet',
-                    maxResults: 5,
-                    q: query,
-                    type: 'video',
-                    key: process.env.YOUTUBE_API_KEY,
-                },
-            }
-        );
-        res.json(response.data.items);
+        const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
+            httpsAgent: agent,
+            params: {
+                key: YOUTUBE_API_KEY,
+                part: 'snippet',
+                q: query,
+                type: 'video',
+                maxResults: 5,
+            },
+        });
+        const results = response.data.items.map((item: any) => ({
+            videoId: item.id.videoId,
+            title: item.snippet.title,
+            thumbnail: item.snippet.thumbnails.default.url,
+        }));
+
+        res.json(results);
     } catch (err) {
-        res.status(500).json({ error: '검색 실패', detail: err });
+        console.log(err);
+        res.status(500).json({ error: '검색 실패' });
     }
 });
 
