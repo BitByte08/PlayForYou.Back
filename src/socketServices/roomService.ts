@@ -1,4 +1,5 @@
 import {v4 as uuidv4} from "uuid";
+import {Socket} from "socket.io";
 
 const joinRoom = (socket, roomQueues, roomStates, roomPlaybackMap) => {
     socket.on('join_room', (roomId: string) => {
@@ -19,11 +20,11 @@ const joinRoom = (socket, roomQueues, roomStates, roomPlaybackMap) => {
 }
 const getRoom = (socket, io, roomQueues) => {
     socket.on('get_rooms', () => {
-        io.emit('room_list', Object.keys(roomQueues));
+        io.to(socket.id).emit('room_list', Object.keys(roomQueues));
     });
 }
 const deleteRoom = (socket, io,  roomQueues, roomPlaybackMap) => {
-    return socket.on("delete-room", (roomId) => {
+    socket.on("delete-room", (roomId) => {
         // 방 삭제 처리 로직
         delete roomQueues[roomId];
         delete roomPlaybackMap[roomId];
@@ -39,22 +40,18 @@ const deleteRoom = (socket, io,  roomQueues, roomPlaybackMap) => {
 const createRoom = (socket, io, roomQueues, roomStates) => {
     socket.on('create_room', () => {
         const newRoomId = uuidv4().slice(0, 6);
-        if (!roomQueues[newRoomId]) {
-            roomQueues[newRoomId] = [];
-        }
-        if (!roomStates[newRoomId]) {
-            roomStates[newRoomId] = {
-                currentMusicId: '',
-                startedAt: 0,
-                endCount: 0,
-                users: new Set()
-            };
-        }
+        roomQueues[newRoomId] = [];
+        roomStates[newRoomId] = {
+            currentMusicId: '',
+            startedAt: 0,
+            endCount: 0,
+            users: new Set()
+        };
         io.emit('room_list', Object.keys(roomQueues)); // 전체에 새 목록 전송
     });
 }
 const leaveRoom = (socket, roomStates) => {
-    socket.on('leaveRoom', ({ roomId }) => {
+    socket.on('leaveRoom', (roomId) => {
         console.log(`leave to room ${socket.id, roomId}`);
         socket.leave(roomId);
         if(roomStates[roomId]) console.log(roomStates[roomId].users);

@@ -16,12 +16,6 @@ const io = new Server(httpServer, {
 });
 
 // 서버 전역에 방 별 큐 저장
-type RoomState = {
-    currentMusicId: string;
-    startedAt: number;
-    endCount: number;
-    users: Set<string>; // socket.id 모음
-}
 
 const roomStates: Record<string, RoomState> = {};
 const roomQueues: Record<string, musicType[]> = {};
