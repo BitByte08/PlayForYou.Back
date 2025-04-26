@@ -10,7 +10,7 @@ const joinRoom = (props: SocketServiceProps) => {
         if (rooms[roomId]) {
             socket.join(roomId);
             rooms[roomId].users.add(socket.id);
-            socket.emit('init_playlist', rooms[roomId].musicQueue);
+            socket.to(socket.id).emit('init_playlist', rooms[roomId].musicQueue);
             socket.emit('playback_started', rooms[roomId].state);
             console.log(`📥 ${socket.id} joined room ${roomId}`);
         } else {
@@ -57,7 +57,7 @@ const leaveRoom = (props: SocketServiceProps) => {
     const socket = props.connection.socket;
     const rooms = props.rooms;
     socket.on('leave_room', (roomId) => {
-        console.log(`leave to room ${socket.id, roomId}`);
+        console.log(`leave to room ${socket.id, roomId}, ${rooms[roomId].users}`);
         socket.leave(roomId);
         rooms[roomId].users.delete(socket.id);
     });
