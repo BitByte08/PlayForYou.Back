@@ -21,7 +21,7 @@ export interface RoomData {
     musicQueue: MusicData[]
     state: RoomState | null
 };
-export interface MusicResponse {
+export interface MusicRequest {
     roomId: string;
     musicInfo: MusicData
 }

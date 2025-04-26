@@ -1,19 +1,24 @@
 import express from 'express';
 import searchRouter from './routers/search';
+import loginRouter from './routers/login';
+import singinRouter from './routers/signin';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import {createRoom, deleteRoom, getRoom, joinRoom, leaveRoom} from "./socketServices/roomService";
 import {RoomData, SocketServiceProps} from "./interfaces";
-import {addMusic, getMusic} from "./socketServices/musicService";
-
+import {addMusic, endMusic, getMusic} from "./socketServices/musicService";
+import dotenv from 'dotenv';
+import * as process from "node:process";
+import bodyParser from "body-parser";
+dotenv.config();
 
 const app = express();
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: 'http://localhost:3000',
+        origin: `http://${process.env.BACKEND}:3000`,
         methods: ['GET', 'POST']
     }
 });
@@ -22,8 +27,11 @@ const io = new Server(httpServer, {
 const rooms: Record<string, RoomData> = {};
 
 app.use(cors());
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.json());
 app.use('/', searchRouter);
-
+app.use('/', loginRouter);
+app.use('/', singinRouter);
 io.on('connection', (socket) => {
     console.log(`✅ ${socket.id} connected`);
     const roomProps:SocketServiceProps = {
@@ -44,56 +52,18 @@ io.on('connection', (socket) => {
     leaveRoom(roomProps);
     // 음악 추가 요청 처리
     addMusic(roomProps);
-
+    // 음악 상태 요청 처리
     getMusic(roomProps);
-    // socket.on('get_playSing', (roomId: string) => {
-    //     if (roomQueues[roomId].length >= 1) {
-    //         if(roomPlaybackMap[roomId]==undefined) {
-    //             const playbackState: PlaybackState = {
-    //                 videoId: roomQueues[roomId][0].id,
-    //                 startedAt: Date.now(),
-    //                 isPlaying: true,
-    //             };
-    //             roomPlaybackMap[roomId] = playbackState;
-    //         }
-    //         io.to(roomId).emit('playback_state', roomPlaybackMap[roomId]);
-    //         console.log(`🎵 재생 시작: ${roomQueues[roomId][0].id} in room ${roomId}`);
-    //     }
-    // })
-    // // 음악이 끝났다고 클라이언트가 알려줌
-    // socket.on('music-ended', (roomId: string) => {
-    //
-    //     const state = roomStates[roomId];
-    //     console.log(state);
-    //     if (!state) return;
-    //
-    //     state.endCount++;
-    //
-    //     // 모든 유저가 끝났을 경우
-    //     if (state.endCount >= state.users.size) {
-    //         const queue = roomQueues[roomId];
-    //         if (queue && queue.length > 0) {
-    //             queue.shift(); // 첫 곡 제거
-    //             state.endCount = 0;
-    //             const nextMusic = queue[0];
-    //             if (nextMusic) {
-    //                 state.currentMusicId = nextMusic.id;
-    //                 state.startedAt = Date.now();
-    //                 io.to(roomId).emit('play-music', nextMusic);
-    //                 io.to(roomId).emit('queue-updated', queue);
-    //             } else {
-    //                 io.to(roomId).emit('queue-empty');
-    //             }
-    //         }
-    //     }
-    // });
-    // 연결 해제
+    // 음악 종료 요청 처리
+    endMusic(roomProps);
+
     socket.on('disconnect', () => {
         console.log(`❌ ${socket.id} disconnected`);
     });
 });
 
 const PORT = 4000;
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT,'0.0.0.0', () => {
+    console.log(process.env.BACKEND);
     console.log(`🚀 Server listening on http://localhost:${PORT}`);
 });
