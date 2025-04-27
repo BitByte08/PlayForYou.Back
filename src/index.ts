@@ -1,7 +1,5 @@
 import express from 'express';
 import searchRouter from './routers/search';
-import loginRouter from './routers/login';
-import singinRouter from './routers/signin';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
@@ -18,7 +16,7 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: `http://${process.env.BACKEND}:3000`,
+        origin: `http://${process.env.FRONT}:3000`,
         methods: ['GET', 'POST']
     }
 });
@@ -30,8 +28,6 @@ app.use(cors());
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use('/', searchRouter);
-app.use('/', loginRouter);
-app.use('/', singinRouter);
 io.on('connection', (socket) => {
     console.log(`✅ ${socket.id} connected`);
     const roomProps:SocketServiceProps = {
