@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/search', async (req, res) => {
     const query = req.query.q as string;
     if (!query) {
-        return res.status(400).json({ error: '검색어가 필요합니다' });
+        res.status(400).json({ error: '검색어가 필요합니다' });
     }
 
     try {
