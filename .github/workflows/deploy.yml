@@ -13,17 +13,14 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Compress project (excluding .git)
-        run: tar --exclude='.git' --warning=no-file-changed -czf backend.tar.gz .
-
-      - name: Upload to server
+      - name: Upload backend folder to server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: backend.tar.gz
-          target: ~/app/
+          source: "backend/*"
+          target: "~/app/backend"
 
       - name: SSH into server and deploy
         uses: appleboy/ssh-action@master
@@ -32,10 +29,6 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd ~/app
-            rm -rf backend
-            mkdir backend
-            tar -xzf backend.tar.gz -C backend --strip-components=1
-            cd backend
-            docker-compose down
-            docker-compose up -d --build
+            cd ~/app/backend
+            docker compose down
+            docker compose up -d --build
