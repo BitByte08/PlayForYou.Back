@@ -33,5 +33,5 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ~/app/backend
-            docker compose down
-            docker compose up -d --build
+            docker-compose down
+            docker-compose up -d --build
