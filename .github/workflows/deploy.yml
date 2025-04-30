@@ -20,7 +20,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           source: "./*"
-          target: "~/app/backend"
+          target: "~/PlayForYou/backend"
           rm: true
           strip_components: 0
           exclude: ".git"
@@ -32,6 +32,6 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd ~/app/backend
+            cd ~/PlayForYou/backend
             docker-compose down
             docker-compose up -d --build
