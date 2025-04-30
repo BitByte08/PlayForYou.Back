@@ -1,13 +1,27 @@
 import {MusicRequest, RoomState, SocketServiceProps} from "../interfaces";
 
+export async function isEmbeddable(videoId: string): Promise<boolean> {
+    const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+    try {
+      const res = await fetch(url);
+      return res.ok; // 404 or 401이면 임베드 불가능
+    } catch (err) {
+      return false;
+    }
+  }
+
 export const addMusic = (props: SocketServiceProps) => {
     const socket = props.connection.socket;
     const io = props.connection.io;
     const rooms = props.rooms;
-    socket.on('add_music', (request: MusicRequest) => {
+    socket.on('add_music', async (request: MusicRequest) => {
         console.log(request);
-        if(rooms[request.roomId].musicQueue === undefined) return;
-
+        const isValid = await isEmbeddable(request.musicInfo.id);
+        console.log(isValid);
+        if (!isValid) {
+            socket.emit('error_music', '이 영상은 퍼가기(임베드)가 제한되어 있습니다.');
+            return;
+        }
         // 큐에 영상 추가
         rooms[request.roomId].musicQueue.push(request.musicInfo);
         if(rooms[request.roomId].state === null){

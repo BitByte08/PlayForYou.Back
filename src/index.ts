@@ -58,7 +58,7 @@ io.on('connection', (socket) => {
     });
 });
 
-const PORT = 4000;
+const PORT = 5000;
 httpServer.listen(PORT,'0.0.0.0', () => {
     console.log(process.env.BACKEND);
     console.log(`🚀 Server listening on http://localhost:${PORT}`);

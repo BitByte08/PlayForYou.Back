@@ -39,6 +39,7 @@ const deleteRoom = (props: SocketServiceProps) => {
         socket.leave(roomId);
     });
 }
+
 const createRoom = (props: SocketServiceProps) => {
     const socket = props.connection.socket;
     const io = props.connection.io;
@@ -50,6 +51,8 @@ const createRoom = (props: SocketServiceProps) => {
             state: null,
             users: new Set<string>()
         }
+        console.log(rooms[newRoomId]);
+
         io.emit('room_list', Object.keys(rooms));
     });
 }
@@ -57,9 +60,13 @@ const leaveRoom = (props: SocketServiceProps) => {
     const socket = props.connection.socket;
     const rooms = props.rooms;
     socket.on('leave_room', (roomId) => {
-        console.log(`leave to room ${socket.id, roomId}, ${rooms[roomId].users}`);
-        socket.leave(roomId);
-        rooms[roomId].users.delete(socket.id);
+        try{
+            console.log(`leave to room ${socket.id, roomId}, ${rooms[roomId].users}`);
+            socket.leave(roomId);
+            if(rooms[roomId] !== undefined) rooms[roomId].users.delete(socket.id);
+        }catch (e) {
+            console.log(e);
+        }
     });
 }
 export {joinRoom, getRoom, deleteRoom, createRoom, leaveRoom};
