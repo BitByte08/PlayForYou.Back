@@ -15,10 +15,10 @@ const app = express();
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-    cors: {
-        origin: `http://${process.env.FRONT}:3000`,
-        methods: ['GET', 'POST']
-    }
+    // cors: {
+    //     origin: `https://:3001`,
+    //     methods: ['GET', 'POST']
+    // }
 });
 // 서버 전역에 방 별 큐 저장
 
