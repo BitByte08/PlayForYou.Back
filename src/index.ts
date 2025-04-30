@@ -27,7 +27,7 @@ const rooms: Record<string, RoomData> = {};
 app.use(cors());
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
-app.use('/', searchRouter);
+app.use('/api', searchRouter);
 io.on('connection', (socket) => {
     console.log(`✅ ${socket.id} connected`);
     const roomProps:SocketServiceProps = {
