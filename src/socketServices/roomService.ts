@@ -63,7 +63,7 @@ const leaveRoom = (props: SocketServiceProps) => {
         try{
             console.log(`leave to room ${socket.id, roomId}, ${rooms[roomId].users}`);
             socket.leave(roomId);
-            if(rooms[roomId] !== undefined) rooms[roomId].users.delete(socket.id);
+            rooms[roomId].users.delete(socket.id);
         }catch (e) {
             console.log(e);
         }

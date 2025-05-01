@@ -55,6 +55,24 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         console.log(`❌ ${socket.id} disconnected`);
+
+        // 모든 방 순회하면서 해당 소켓이 있었던 곳에서 제거
+        for (const roomId in rooms) {
+            if (rooms[roomId].users.has(socket.id)) {
+                rooms[roomId].users.delete(socket.id);
+
+                // 유저 수가 0명이면 상태도 정리
+                if (rooms[roomId].users.size === 0) {
+                    rooms[roomId].state = null;
+                    rooms[roomId].musicQueue = [];
+                    console.log(`🧹 Room ${roomId} is now empty and has been reset.`);
+                }
+
+                // 변경사항 클라이언트에게도 알림
+                io.to(roomId).emit('music_state', rooms[roomId].state);
+                io.to(roomId).emit('playlist', rooms[roomId].musicQueue);
+            }
+        }
     });
 });
 

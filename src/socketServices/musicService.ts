@@ -50,27 +50,35 @@ export const endMusic = (props: SocketServiceProps) => {
     const socket = props.connection.socket;
     const io = props.connection.io;
     const rooms = props.rooms;
+
     socket.on('end_music', (roomId: string) => {
-        if(rooms[roomId].users.has(socket.id)) {
+        console.log(rooms[roomId].users);
+
+        const connectedUsersCount = io.sockets.adapter.rooms.get(roomId)?.size || 0;
+
+        if (rooms[roomId].users.has(socket.id)) {
             if (rooms[roomId].state !== null) {
-                console.log('end', socket.id, rooms[roomId].users.size);
+                console.log('end', socket.id, connectedUsersCount);
                 rooms[roomId].state.endCount += 1;
-                if (rooms[roomId].state.endCount >= rooms[roomId].users.size){
+
+                if (rooms[roomId].state.endCount >= connectedUsersCount) {
                     rooms[roomId].musicQueue = rooms[roomId].musicQueue.filter((_, index) => index !== 0);
-                    if(rooms[roomId].musicQueue.length > 0) {
+
+                    if (rooms[roomId].musicQueue.length > 0) {
                         const nextRoomState: RoomState = {
                             currentMusic: rooms[roomId].musicQueue[0],
                             endCount: 0,
                             startedAt: Date.now(),
-                        }
-                        rooms[roomId].state = {...nextRoomState};
-                    }else{
+                        };
+                        rooms[roomId].state = { ...nextRoomState };
+                    } else {
                         rooms[roomId].state = null;
                     }
                 }
             }
+
             io.to(roomId).emit('music_state', rooms[roomId].state);
             io.to(roomId).emit('playlist', rooms[roomId].musicQueue);
         }
-    })
-}
+    });
+};
