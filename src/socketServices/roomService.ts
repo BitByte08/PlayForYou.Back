@@ -1,5 +1,4 @@
 import {v4 as uuidv4} from "uuid";
-import {Socket} from "socket.io";
 import {SocketServiceProps} from "../interfaces";
 
 
@@ -54,6 +53,7 @@ const createRoom = (props: SocketServiceProps) => {
         console.log(rooms[newRoomId]);
 
         io.emit('room_list', Object.keys(rooms));
+        io.to(socket.id).emit('add_room', newRoomId);
     });
 }
 const leaveRoom = (props: SocketServiceProps) => {
