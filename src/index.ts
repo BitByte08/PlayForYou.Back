@@ -32,7 +32,7 @@ app.use('/api', searchRouter);
 // 소켓 연결 시 모든 이벤트 등록
 io.on('connection', (socket) => {
 	console.log(`✅ ${socket.id} connected`);
-
+	socket.data.username = "guest";
 	initializeSocketServer(io, rooms);
 });
 
