@@ -5,12 +5,12 @@ export const handleAddMusic = ({ connection, rooms }: SocketServiceProps) => {
 	const { socket, io } = connection;
 
 	socket.on('add_music', ({ roomId, musicInfo }) => {
+		const addUserMusicInfo = {
+			...musicInfo,
+			add_user: socket.data.username,
+		}
+		rooms[roomId].musicQueue.push(addUserMusicInfo);
 		if(rooms[roomId].state === null){
-			const addUserMusicInfo = {
-				...musicInfo,
-				add_user: socket.data.username,
-			}
-			rooms[roomId].musicQueue.push(addUserMusicInfo);
 			const roomState:RoomState = {
 				currentMusic: addUserMusicInfo,
 				endCount: 0,
