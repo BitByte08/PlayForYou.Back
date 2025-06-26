@@ -1,7 +1,7 @@
 import { SocketServiceProps } from '@/interfaces/socket';
 import { handleCreateRoom, handleJoinRoom, handleLeaveRoom, handleDeleteRoom, handleGetRooms } from './room/room.handler';
 import { handleUserConnection } from './user/user.handler';
-import { handleMusicEvents } from './music/music.handler';
+import { handleAddMusic, handleEndMusic, handleGetMusic } from './music/music.handler';
 
 export const registerSocketHandlers = (props: SocketServiceProps) => {
 	// User 관련 이벤트
@@ -15,5 +15,7 @@ export const registerSocketHandlers = (props: SocketServiceProps) => {
 	handleGetRooms(props);
 
 	// Music 관련 이벤트
-	handleMusicEvents(props);
+	handleAddMusic(props);
+	handleEndMusic(props);
+	handleGetMusic(props);
 };
