@@ -6,6 +6,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import searchRouter from './routers/search';
 import { initializeSocketServer } from './sockets';
+import { registerSocketHandlers } from './sockets/register';
 import { RoomData } from './sockets/room/room.types';
 import * as process from 'node:process';
 
@@ -33,7 +34,10 @@ app.use('/api', searchRouter);
 io.on('connection', (socket) => {
 	console.log(`✅ ${socket.id} connected`);
 	socket.data.username = "guest";
-	initializeSocketServer(io, rooms);
+	registerSocketHandlers({
+		connection: {socket, io},
+		rooms,
+	});
 });
 
 const PORT = 3002;
