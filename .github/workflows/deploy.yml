@@ -32,6 +32,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            source ~/.zshrc
             cd ~/PlayForYou/backend
             # .env 파일 생성
             cat <<EOF > .env
